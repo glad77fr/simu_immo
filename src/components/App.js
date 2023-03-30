@@ -1,9 +1,12 @@
 import Header from './Header'
+import Forms from './Forms'
+
 
 function App() {
   return (
-    <div classname="app_simu">
-      <Header />
+    <div className="app_simu">
+
+      <Forms/>
     </div>
   );
 }
