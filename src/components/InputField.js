@@ -1,13 +1,13 @@
-function InputField({ label, id, onChange, isRequired, classValue, ...args }) {
+function InputField({ label, id, onChange, isRequired, classValue,containerClass, ...args }) {
   return (
-    <div>
+    <div className={`inputForms ${containerClass || ''}`}>
       <p>{label}</p>
       <input
         type="number"
         id={id}
         onChange={onChange}
         required={isRequired}
-        class={classValue}
+        className={classValue} 
         {...args}
       />
     </div>

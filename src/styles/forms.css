@@ -4,24 +4,60 @@ body {
     box-sizing: border-box;
 }
 
-.container {
+.formsContainer {
     display: grid;
     grid-template-columns: 1fr 2fr;
-    width: 100vw; /* Utilisez 100vw pour occuper toute la largeur de la fenêtre */
+    width: 100%; /* Utilisez 100vw pour occuper toute la largeur de la fenêtre */
     gap: 10px;
     padding: 20px;
 }
-    
+
+/* Ajouter cette classe à votre fichier CSS */
+.inputForms p {
+    margin-bottom: 5px; /* Ajustez cette valeur pour rapprocher ou éloigner le label du champ input */
+ 
+  }
+
+  
 .part1, .part2 {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    padding: 20px;
 }
 
+
 .part1 {
-    background-color: yellow;
+    
 }
 
 .part2 {
-    background-color: red;
+    
 }
+
+.card {
+    width: 60%;
+    margin-bottom: 20px;
+    justify-content: flex-start; /* Aligner les éléments horizontalement en haut de la div */
+    padding-left: 20px;
+    padding-right: 20px; 
+  }
+
+.inputForms, .selectForms{
+    margin-bottom: 15px; /* Ajoute une marge en bas de chaque élément de formulaire */
+  }
+
+  .sliderAndInput {
+    display: flex;
+    align-items: center;
+  }
+  
+  .sliderAndInput input[type="range"] {
+    margin-right: 15px;
+  }
+
+  .cards-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
