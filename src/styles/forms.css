@@ -1,63 +1,70 @@
 body {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .formsContainer {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    width: 100%; /* Utilisez 100vw pour occuper toute la largeur de la fenêtre */
-    gap: 10px;
-    padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  width: 100%;
+  gap: 10px;
+  padding: 20px;
 }
 
-/* Ajouter cette classe à votre fichier CSS */
-.inputForms p {
-    margin-bottom: 5px; /* Ajustez cette valeur pour rapprocher ou éloigner le label du champ input */
- 
-  }
-
-  
-.part1, .part2 {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 20px;
+.inputForms p,
+.form-select {
+  margin-bottom: 5px;
+  margin-right: 5px;
+  max-width: 80%;
 }
 
-
-.part1 {
-    
-}
-
+.part1,
 .part2 {
-    
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px;
 }
 
 .card {
-    width: 60%;
-    margin-bottom: 20px;
-    justify-content: flex-start; /* Aligner les éléments horizontalement en haut de la div */
-    padding-left: 20px;
-    padding-right: 20px; 
-  }
+  width: 80%;
+  margin-bottom: 20px;
+  justify-content: flex-start;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 20px;
+}
 
-.inputForms, .selectForms{
-    margin-bottom: 15px; /* Ajoute une marge en bas de chaque élément de formulaire */
-  }
+.inputForms,
+.selectForms {
+  margin-bottom: 15px;
+}
 
-  .sliderAndInput {
-    display: flex;
-    align-items: center;
-  }
-  
-  .sliderAndInput input[type="range"] {
-    margin-right: 15px;
-  }
+.form-control,
+.form-select {
+  max-width: 70%;
+}
 
-  .cards-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+.sliderAndInput {
+  display: flex;
+  align-items: center;
+}
+
+.sliderAndInput input[type="range"] {
+  margin-right: 15px;
+}
+
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Media Query for screens smaller than or equal to 768px */
+@media screen and (max-width: 768px) {
+  .formsContainer {
+    grid-template-columns: 1fr;
   }
+    
+}
