@@ -6,7 +6,7 @@ body {
 
 .formsContainer {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 2fr 3fr;
   width: 100%;
   gap: 10px;
   padding: 20px;
@@ -16,7 +16,7 @@ body {
 .form-select {
   margin-bottom: 5px;
   margin-right: 5px;
-  max-width: 80%;
+  max-width: 50%;
 }
 
 .part1,
@@ -39,6 +39,7 @@ body {
 .inputForms,
 .selectForms {
   margin-bottom: 15px;
+  
 }
 
 .form-control,

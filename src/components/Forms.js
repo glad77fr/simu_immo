@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import InputField from './InputField';
 import SelectField from './SelectFields';
 import "../styles/forms.css";
+import PieChartComponent from './PieChartComponent';
+import PieChartExpenses from './PieChartExpenses';
+import 'chart.js/auto';
+
 
 function Forms() {
   // State
@@ -21,14 +25,19 @@ function Forms() {
     insuranceMonthlyPaymentPhrase: "",
     totalLoanCostPhrase: "",
     costWorksPhrase: "",
-
+    rentAmountPhrase: "",
+    grossYieldPhrase: "",
+    contribution: "",
   });
 
   const [loanDuration, setLoanDuration] = useState(0); // Durée du prêt
-  const [montlyLoan, setMontlyLoan] = useState(0); // Montant mensuel du prêt
-  const [montlyLoanInsurance, setMontlyLoanInsurance] = useState(0) // Montant mensuel de l'assurance
+  const [monthlyLoan, setMontlyLoan] = useState(0); // Montant mensuel du prêt
+  const [monthlyLoanInsurance, setMontlyLoanInsurance] = useState(0) // Montant mensuel de l'assurance
   const [totalLoanMontlyCost, setTotalLoanMontlyCost] = useState(0); // Montant mensuel total du pret
   const [costWorks, setCostWorks] = useState(0); // Montant des travaux
+  const [rentAmount, setRentAmount] = useState(0); // Montant du loyer mensuel
+  const [grossYield, setGrossYield] = useState(0); // Rentabilité brute
+  const [contribution, setContribution] = useState(0); // Apport
 
   // Constants
   const buyingType = [
@@ -37,11 +46,6 @@ function Forms() {
   ];
 
   // Handlers
-  function handleChange(event) {
-    const inputValue = Number(event.target.value);
-    setPrice(inputValue);
-    setTax(inputValue + inputValue * 0.08);
-  }
 
   function checkBorrowAmount(event) {
     const enteredAmount = event.target.value;
@@ -58,12 +62,25 @@ function Forms() {
   }
 
   function defineTax(event) {
-    if (buyingTypeSelected == "Neuf") {
-      setTax(2);}
-    if (buyingTypeSelected == "Ancien") {
-      setTax(8);
+    let currentTax = 0;
+
+    if (buyingTypeSelected === "Neuf") {
+        currentTax = 2;
+        setTax(currentTax);
     }
-  }
+    if (buyingTypeSelected === "Ancien") {
+        currentTax = 8;
+        setTax(currentTax);
+    }
+
+    const currentAmountNotaryFees = price * (currentTax / 100);
+    setAmountNotaryFees(currentAmountNotaryFees);
+
+    setDisplayPhrases((prevPhrases) => ({
+        ...prevPhrases,
+        notaryFeesPhrase: `Le montant des frais de notaire est de ${currentAmountNotaryFees} € .`,
+    }));
+}
 
   function calculateLoanPayment(P, r, n) {
     const monthlyRate = r / 1200;
@@ -84,7 +101,12 @@ function Forms() {
     const monthlyInsurancePayment = totalInsuranceCost / numPayments;
   
     return monthlyInsurancePayment;
-  }  
+  } 
+
+  function calculateGrossRate(mensualRent, totalCost) {
+    const GrossRate = (mensualRent*12/totalCost)*100
+    return GrossRate
+  }
 
   useEffect(() => {
     if (buyingTypeSelected) {
@@ -92,11 +114,10 @@ function Forms() {
         ...prevPhrases,
         buyingTypePhrase: `Le bien acheté est un bien ${buyingTypeSelected.toLowerCase()}.`,
       }));
-      defineTax();
     }
   }, [buyingTypeSelected]);
-  
 
+  
   useEffect(() => {
     if (tax) {
       setDisplayPhrases((prevPhrases) => ({
@@ -107,14 +128,14 @@ function Forms() {
   }, [tax]);
 
   useEffect(() => {
-    if (montlyLoan && montlyLoanInsurance) {
-      setTotalLoanMontlyCost(montlyLoan + montlyLoanInsurance);
+    if (monthlyLoan && monthlyLoanInsurance) {
+      setTotalLoanMontlyCost(monthlyLoan + monthlyLoanInsurance);
       setDisplayPhrases((prevPhrases) => ({
         ...prevPhrases,
         totalLoanCostPhrase: `Le coût total mensuel du crédit est de ${totalLoanMontlyCost.toFixed(2)} € .`,
       }));
     }
-  }, [montlyLoan, montlyLoanInsurance]);
+  }, [monthlyLoan, monthlyLoanInsurance]);
   
   useEffect(() => {
     if (borrowedAmount > 0 && borrowingRate > 0 && loanDuration > 0) {
@@ -125,10 +146,17 @@ function Forms() {
       );
       setDisplayPhrases((prevPhrases) => ({
         ...prevPhrases,
-        loanPaymentPhrase: `La mensualité du prêt est de ${montlyLoan.toFixed(2)} €.`,
+        loanPaymentPhrase: `La mensualité du prêt est de ${monthlyLoan.toFixed(2)} €.`,
       }));
     }
   }, [borrowedAmount, borrowingRate, loanDuration]);
+
+  useEffect(() => {
+    if (buyingTypeSelected && price > 0) {
+      defineTax();
+    }
+  }, [buyingTypeSelected, price]);
+  
 
   useEffect(() => {
     if (borrowedAmount > 0 && loanGuarentee > 0 && loanDuration > 0) {
@@ -139,7 +167,7 @@ function Forms() {
       ));
       setDisplayPhrases((prevPhrases) => ({
         ...prevPhrases,
-        insuranceMonthlyPaymentPhrase: `La mensualité de l'assurance est de ${montlyLoanInsurance.toFixed(2)} €.`,
+        insuranceMonthlyPaymentPhrase: `La mensualité de l'assurance est de ${monthlyLoanInsurance.toFixed(2)} €.`,
       }));
     }
   }, [borrowedAmount, loanGuarentee, loanDuration]);
@@ -153,15 +181,6 @@ function Forms() {
     }
   }, [price]);
   
-  useEffect(() => {
-    if (price && tax) {
-      setAmountNotaryFees(price * (tax/100));
-      setDisplayPhrases((prevPhrases) => ({
-        ...prevPhrases,
-        notaryFeesPhrase: `Le montant des frais de notaire est de  ${AmountNotaryFees} € .`,
-      }));
-    }
-  }, [tax, price]);
 
   useEffect(() => {
     if (costWorks) {
@@ -171,8 +190,43 @@ function Forms() {
       }));
     }
   }, [costWorks]
+  );
 
-  )
+  useEffect(() => {
+    if (rentAmount>0) {
+      setDisplayPhrases((prevPhrases) => ({
+        ...prevPhrases,
+        rentAmountPhrase: `Le montant mensuel du loyer est de  ${rentAmount} € .`,
+      }));
+    }
+  }, [rentAmount]
+  );
+
+  useEffect(() => {
+    if (price>0 && rentAmount>0) {
+      const totalPrice = Number(price) + Number(AmountNotaryFees) + Number(costWorks);
+      const grossRateAmount = calculateGrossRate(Number(rentAmount),totalPrice);
+      setGrossYield(grossRateAmount);
+
+      setDisplayPhrases((prevPhrases) => ({
+        ...prevPhrases,
+        grossYieldPhrase: `Le taux de rentabilité brute est du projet est ${grossRateAmount.toFixed(2)} %.`,
+      }));
+    }
+  }, [price,AmountNotaryFees, costWorks, rentAmount]
+  );
+
+  useEffect(()=> {
+      if(price>0) {
+        const financialContribution = (Number(price) + Number(costWorks)) - Number(borrowedAmount);
+        setContribution(financialContribution);
+        setDisplayPhrases((prevPhrases) => ({
+          ...prevPhrases,
+          contribution: `Votre apport est de ${financialContribution} €.`,
+        }));
+      }},
+      [price, borrowedAmount,costWorks]
+  );
 
   // Render
   return (
@@ -189,23 +243,55 @@ function Forms() {
               classType="form-select"
               onChange={(event) => handleStateChange(setBuyingTypeSelected, event)}
             />
-
+         <div className="sliderAndInput">
+            <InputField
+                id="slicerImmoPrice"
+                type="range"
+                classValue="form-range"
+                min={0}
+                max={300000} // Set the maximum according to your needs
+                step={5000} //
+                value={price}
+                onChange={(event) => handleStateChange(setPrice, event)}
+                containerClass="sliderAndInput"
+                
+              />
             <InputField
               label="Montant du bien *"
               id="immoPrice"
               onChange={(event) => handleStateChange(setPrice, event)}
               classValue="form-control"
+              value={price}
+              containerClass="sliderAndInput"
+              type="number"
             />
-
+          </div>
+          <div className="sliderAndInput">
+          <InputField
+                id="slicerCostWork"
+                type="range"
+                classValue="form-range"
+                min={0}
+                max={50000} // Set the maximum according to your needs
+                step={1000} //
+                value={costWorks}
+                onChange={(event) => handleStateChange(setCostWorks, event)}
+                containerClass="sliderAndInput"
+                
+              />
             <InputField
               label="Montant estimé des travaux"
+              type="number"
               classValue="form-control"
               id="costWork"
               value={costWorks}
               onChange={(event) => handleStateChange(setCostWorks, event)}
+              containerClass="sliderAndInput"
             />
           </div>
-                    {/* Financing card */}
+          </div>
+            
+            {/* Financing card */}
                     <div className="card">
             <h3> Financement </h3>
             <div className="sliderAndInput">
@@ -214,7 +300,7 @@ function Forms() {
                 type="range"
                 classValue="form-range"
                 min={0}
-                max={999999} // Set the maximum according to your needs
+                max={300000} // Set the maximum according to your needs
                 step={5000} //
                 value={borrowedAmount}
                 onChange={(event) => handleStateChange(setBorrowedAmount, event)}
@@ -225,6 +311,7 @@ function Forms() {
                 label="Montant emprunté"
                 id="borrowedAmount"
                 classValue="form-control"
+                type="number"
                 value={borrowedAmount}
                 onChange={(event) => handleStateChange(setBorrowedAmount, event)}
                 containerClass="sliderAndInput"
@@ -237,7 +324,7 @@ function Forms() {
                 type="range"
                 classValue="form-range"
                 min={0}
-                max={20} // Set the maximum according to your needs
+                max={25} // Set the maximum according to your needs
                 step={1} //
                 value={loanDuration}
                 onChange={(event) => handleStateChange(setLoanDuration, event)}
@@ -301,12 +388,27 @@ function Forms() {
                 containerClass="sliderAndInput"
               />
             </div>
-
-            <InputField
-              label="Revenus locatif mensuels estimés *"
+          <div className="sliderAndInput">
+          <InputField
+                id="borrowedRange"
+                type="range"
+                classValue="form-range"
+                min={300}
+                max={1000} // Set the maximum according to your needs
+                step={50} //
+                value={rentAmount}
+                onChange={(event) => handleStateChange(setRentAmount, event)}
+                containerClass="sliderAndInput"
+              />  
+              <InputField
+              label="Revenus locatif mensuels estimés"
               classValue="form-control"
               id="rentRevenue"
+              value={rentAmount}
+              onChange={(event) => handleStateChange(setRentAmount, event)}
+              containerClass="sliderAndInput"
             />
+            </div>
           </div>
         </div>
       </div>
@@ -320,8 +422,34 @@ function Forms() {
         {displayPhrases.loanPaymentPhrase && <p>{displayPhrases.loanPaymentPhrase}</p>}
         {displayPhrases.insuranceMonthlyPaymentPhrase && <p>{displayPhrases.insuranceMonthlyPaymentPhrase}</p>}
         {displayPhrases.totalLoanCostPhrase && <p>{displayPhrases.totalLoanCostPhrase}</p>}
+        {displayPhrases.rentAmountPhrase && <p>{displayPhrases.rentAmountPhrase}</p>}
+        {displayPhrases.contribution && <p>{displayPhrases.contribution}</p>}
+        {displayPhrases.grossYieldPhrase && <p>{displayPhrases.grossYieldPhrase}</p>}
         
-      </div>  
+        
+        {monthlyLoan && monthlyLoanInsurance && rentAmount?(
+      <PieChartComponent
+      monthlyLoanAmount={monthlyLoan}
+      monthlyInsuranceAmount={monthlyLoanInsurance}
+      rentAmount={rentAmount}
+      />
+      ):null}
+      
+      {
+        price || monthlyLoanInsurance || contribution ? (
+          <PieChartExpenses
+            totalLoanCost={borrowedAmount}
+            costWorks={costWorks}
+            contribution={contribution}
+          />
+        ) : null
+      }
+  
+
+      </div>
+      <div>
+     
+      </div>
     </div>
   );
 }
